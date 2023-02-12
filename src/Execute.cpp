@@ -93,6 +93,19 @@ void Execute::privmsg(int &fd, Server *server, std::string message)
 			server->sender(fd2, utils::getProtocol(user2) + " PRIVMSG " + channelName + " :" + msg);
 		}
 	}
+	else
+	{
+		User *user = server->getUser(toWho);
+		 int recvFd = user->getFd();
+
+		if (user == NULL)
+		{
+			server->sender(fd, "ERROR :No such nick");
+			return ;
+		}
+
+		server->sender(recvFd, utils::getProtocol(server->getUser(fd)) + " PRIVMSG " + toWho + " :" + msg);
+	}
 }
 
 void Execute::nick(int &fd, Server *server, std::string message){
