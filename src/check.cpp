@@ -13,12 +13,17 @@ namespace check
 		if (sock == -1)
 			error(function + "() didn't work as excepted", exitCode);
 	}
-	void checkRecv(int fd, char *buffer, int size)
+	ssize_t checkRecv(int fd, char *buffer, int size)
 	{
-		if (recv(fd, buffer, size, 0) < 0) {
+		ssize_t rtn;
+
+		rtn = recv(fd, buffer, size, 0);
+		if (rtn < 0) {
 			if (errno != EWOULDBLOCK)
 				error("recv() didn't work as excepted", RECVERROR);
 		}
+		std::cout << "rtn: " << rtn << std::endl;
+		return rtn;
 	}
 	void checkArgs(int argc, char *argv[])
 	{
@@ -32,39 +37,5 @@ namespace check
 		} catch (std::exception &e) {
 			error("Port must be a number", PORTNUMBERERROR);
 		}
-	}
-	bool checkNick(User *user, std::string nickname, Server *server)
-	{
-		if (nickname == "")
-		{
-			utils::err(ERR_NONICKNAMEGIVEN, user, server);
-			return false;
-		}
-		if (server->getUser(nickname) != NULL)
-		{
-			utils::err(ERR_NICKNAMEINUSE(nickname), user, server);
-			return false;
-		}
-		if (isnumber(nickname[0]) == 1)
-		{
-			utils::err(ERR_ERRONEUSNICKNAME(nickname), user, server);
-			return false;
-		}
-		if (nickname.size() > 30)
-		{
-			utils::err(ERR_ERRONEUSNICKNAME(nickname), user, server);
-			return false;
-		}
-		if (nickname.find_first_of(" \t\r\n\v\f") != std::string::npos)
-		{
-			utils::err(ERR_ERRONEUSNICKNAME(nickname), user, server);
-			return false;
-		}
-		if (nickname.find_first_not_of(VALIDCHARS) != std::string::npos)
-		{
-			utils::err(ERR_ERRONEUSNICKNAME(nickname), user, server);
-			return false;
-		}
-		return true;
 	}
 }

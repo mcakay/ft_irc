@@ -31,18 +31,20 @@ int Server::sender(int &fd, std::string msg)
 	return 1;
 }
 
-void Server::handle_buffer(int &fd)
+int Server::handle_buffer(int &fd)
 {
 	std::string message;
 	Execute exec;
+	ssize_t recv_rtn;
+	char buffer[MAX_BUFFER_SIZE + 1];
 
-	char buffer[100];
-	memset(buffer, 0, 100);
-	while (!strstr(buffer, "\n")) 
+	recv_rtn = recv(fd, buffer, MAX_BUFFER_SIZE, 0);
+	message = buffer;
+	if (recv_rtn == 0)
 	{
-		memset(buffer, 0, 100);
-		check::checkRecv(fd, buffer, 100);
-		message.append(buffer);
+		this->removeUser(this->getUser(fd));
+		std::cout << "Client Disconnected" << std::endl;
+		return (0);
 	}
 	message = utils::trimBuffer(message);
 	utils::printClient(message, fd);
@@ -51,11 +53,26 @@ void Server::handle_buffer(int &fd)
 		auth::handleAuth(user, exec, message, this);
 	else
 		exec.execute(fd, this, message);
+	return (1);
+}
+
+void Server::removeUser(User *user)
+{
+	std::vector<User*>::iterator it;
+	for (it = this->users.begin(); it != this->users.end(); it++)
+	{
+		if ((*it)->getFd() == user->getFd())
+		{
+			this->users.erase(it);
+			break;
+		}
+	}
 }
 
 void Server::run()
 {
 	int rtn;
+	int recv_rtn = 1;
 	std::vector<pollfd> fds(1);
 	fds[0].fd = this->sockfd;
 	fds[0].events = POLLIN;
@@ -85,7 +102,13 @@ void Server::run()
 			for (size_t i = 1; i < fds.size(); i++)
 			{
 				if (fds[i].revents & POLLIN)
-					handle_buffer(fds[i].fd);
+					recv_rtn = handle_buffer(fds[i].fd);
+				std::cout << recv_rtn << std::endl;
+				if (recv_rtn == 0)
+					{
+						fds.erase(fds.begin() + i);
+						break;
+					}
 			}
 		}
 	}

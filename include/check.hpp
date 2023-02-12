@@ -4,7 +4,6 @@
 #include <iostream>
 #include "Server.hpp"
 
-#define VALIDCHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[]\\`_^{|}-"
 #define USAGEERROR 1
 #define PORTERROR 2
 #define PORTNUMBERERROR 3
@@ -21,11 +20,10 @@ class Server;
 
 namespace check
 {
-	void error(std::string msg, int exitCode);
-	void checkSocket(int sock, std::string function, int exitCode);
-	void checkArgs(int argc, char *argv[]);
-	void checkRecv(int fd, char *buffer, int size);
-	bool checkNick(User *user, std::string nickname, Server *server);
+	void	error(std::string msg, int exitCode);
+	void	checkSocket(int sock, std::string function, int exitCode);
+	void	checkArgs(int argc, char *argv[]);
+	ssize_t checkRecv(int fd, char *buffer, int size);
 }
 
 #endif

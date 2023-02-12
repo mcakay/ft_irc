@@ -14,6 +14,9 @@
 #include "Execute.hpp"
 #include "Channel.hpp"
 
+# define MAX_USERS 1000
+# define MAX_BUFFER_SIZE 512
+
 class User;
 class Channel;
 
@@ -30,7 +33,7 @@ class Server
 		Server(int port, std::string pass);
 		~Server();
 		std::vector<User*> getUsers();
-		void handle_buffer(int &fd);
+		int handle_buffer(int &fd);
 		int sender(int &fd, std::string msg);
 		void run();
 		User* getUser(int fd);

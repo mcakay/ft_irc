@@ -3,6 +3,7 @@
 
 # include <iostream>
 
+
 class User
 {
 	private:
@@ -22,6 +23,7 @@ class User
 		int getFd();
 		bool getAuth();
 		void setAuth(bool auth);
+	
 };
 
 #endif
